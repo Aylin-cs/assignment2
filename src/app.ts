@@ -1,7 +1,7 @@
 import express from "express";
 import usersRoutes from "./routes/users_routes";
-// בהמשך:
-// import authRoutes from "./routes/auth.routes";
+import authRoutes from "./routes/auth_routes";
+
 // import postsRoutes from "./routes/posts.routes";
 // import commentsRoutes from "./routes/comments.routes";
 
@@ -17,7 +17,7 @@ app.get("/", (_req, res) => {
 
 // Routes
 app.use("/users", usersRoutes);
-// app.use("/auth", authRoutes);
+app.use("/auth", authRoutes);
 // app.use("/posts", postsRoutes);
 // app.use("/comments", commentsRoutes);
 
