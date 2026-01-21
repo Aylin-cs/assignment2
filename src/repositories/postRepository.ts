@@ -1,4 +1,4 @@
-import Post, { IPost } from "../models/post.model";
+import Post, { IPost } from "../models/postModel";
 import { Types } from "mongoose";
 
 interface PostData {

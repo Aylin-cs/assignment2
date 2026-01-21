@@ -4,9 +4,9 @@
   "description": "Assignment 2 – REST API (Node.js, Express, TypeScript)",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev": "ts-node-dev --respawn --transpile-only src/main.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/main.js"
   },
   "repository": {
     "type": "git",

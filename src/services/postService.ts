@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import * as postRepository from "../repositories/post.repository";
-import { IPost } from "../models/post.model";
+import * as postRepository from "../repositories/postRepository";
+import { IPost } from "../models/postModel";
 
 export const createPost = async (stringUserId: string, content: string): Promise<IPost> => {
   if (!stringUserId || !content) {

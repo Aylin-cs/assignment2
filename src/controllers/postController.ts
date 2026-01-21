@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import * as postService from "../services/post.service";
+import * as postService from "../services/postService";
 
 export const addPost = async (req: Request, res: Response): Promise<void> => {
   try {
