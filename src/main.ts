@@ -2,6 +2,9 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import postRoutes from "./routes/postRouter";
+import swaggerJsdoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
+
 
 dotenv.config();
 
@@ -13,6 +16,29 @@ app.get("/debug/new-user-id", (_req, res) => {
 });
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
+
+// Swagger configuration
+const swaggerOptions = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "API Documentation",
+      version: "1.0.0",
+      description: "API documentation for the application",
+    },
+    servers: [
+      {
+        url: `http://localhost:${PORT}`,
+        description: "Local server",
+      },
+    ],
+  },
+  apis: ["./src/routes/*.ts"],
+};
+
+const swaggerDocs = swaggerJsdoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
 const MONGO_URI = process.env.MONGO_URI;
 
 if (!MONGO_URI) {
@@ -34,4 +60,5 @@ app.get("/", (_req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
+  console.log(`Swagger docs available at http://localhost:${PORT}/api-docs`);
 });
