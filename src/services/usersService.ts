@@ -1,4 +1,4 @@
-import { User } from "../models/users_model";
+import { User } from "../models/usersModel";
 import crypto from "crypto";
 
 const users: User[] = [];

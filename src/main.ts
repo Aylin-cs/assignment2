@@ -2,6 +2,9 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import postRoutes from "./routes/postRouter";
+import usersRoutes from "./routes/usersRoutes";
+import authRoutes from "./routes/authRoute";
+
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 
@@ -11,6 +14,8 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 app.use("/posts", postRoutes);
+app.use("/users", usersRoutes);
+app.use("/auth", authRoutes);
 app.get("/debug/new-user-id", (_req, res) => {
   res.json({ userId: new mongoose.Types.ObjectId().toString() });
 });

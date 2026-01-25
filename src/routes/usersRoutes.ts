@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createUser, getUsers, getUserById } from "../services/users_service";
+import { createUser, getUsers, getUserById } from "../services/usersService";
 
 /**
  * @openapi
