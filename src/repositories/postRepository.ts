@@ -36,3 +36,8 @@ export const deletePost = async (postId: string): Promise<boolean> => {
   const result = await Post.findByIdAndDelete(postId).exec();
   return result !== null;
 };
+
+export const addCommentToPost = async (postId: string,commentId: Types.ObjectId): Promise<IPost | null> => {
+  return await Post.findByIdAndUpdate(
+    postId,{ $push: { comments: commentId } },{ new: true, runValidators: true }).exec();
+};

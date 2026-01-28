@@ -141,12 +141,13 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     return;
   }
 
+
   jwt.verify(token, process.env.TOKEN_SECRET, (err, payload: any) => {
     if (err) {
       res.status(401).send("Access Denied");
       return;
     }
-    req.params.userId = payload._id;
+    (req as any).userId = payload?._id || payload?.id;
     next();
   });
 };

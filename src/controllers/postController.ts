@@ -64,3 +64,20 @@ export const deletePost = async (req: Request, res: Response): Promise<void> => 
     res.status(500).json({ error: err.message });
   }
 };
+
+export const addCommentToPost = async (req: Request, res: Response) => {
+  try {
+    const rawPostId = req.params.post_id;
+    const postId = Array.isArray(rawPostId) ? rawPostId[0] : rawPostId;
+    const { content } = req.body;
+    const userId = (req as any).userId;
+
+    const comment = await postService.addCommentToPost(postId, userId, content);
+    return res.status(201).json(comment);
+  } catch (err: any) {
+    const msg = err?.message ?? "Error";
+    if (msg.includes("required")) return res.status(400).json({ message: msg });
+    if (msg.includes("not found")) return res.status(404).json({ message: msg });
+    return res.status(500).json({ message: msg });
+  }
+};

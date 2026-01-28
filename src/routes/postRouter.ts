@@ -74,6 +74,48 @@ router.get("/:post_id", postController.getPostById);
 
 /**
  * @openapi
+ * /posts/{post_id}/comments:
+ *   post:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Add a comment to a post
+ *     description: Adds a new comment to a specific post. The user is taken from the JWT token.
+ *     parameters:
+ *       - in: path
+ *         name: post_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the post to comment on
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - content
+ *             properties:
+ *               content:
+ *                 type: string
+ *                 example: "Nice post!"
+ *     responses:
+ *       201:
+ *         description: Comment added successfully
+ *       400:
+ *         description: Bad request - validation error
+ *       404:
+ *         description: Post not found
+ */
+
+router.post(
+  "/:post_id/comments",
+  authService.authMiddleware,
+  postController.addCommentToPost
+);
+
+/**
+ * @openapi
  * /posts/{post_id}:
  *   put:
  *     security:     
