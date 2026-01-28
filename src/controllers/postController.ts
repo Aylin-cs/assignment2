@@ -5,14 +5,20 @@ import * as commentService from "../services/commentService";
 export const addPost = async (req: Request, res: Response): Promise<void> => {
   try {
     const { content } = req.body;
-    const { userId } = req.body;
+    const userId = (req as any).userId as string | undefined;
 
-    const newPost = await postService.createPost(userId, content);
+    if (!userId || !content) {
+      res.status(400).json({ error: "UserId and content are required." });
+      return;
+    }
+
+    const newPost = await postService.createPost(String(userId), content);
     res.status(201).json(newPost);
   } catch (err: any) {
     res.status(400).json({ error: err.message });
   }
 };
+
 
 export const getAllPosts = async (req: Request, res: Response): Promise<void> => {
   try {

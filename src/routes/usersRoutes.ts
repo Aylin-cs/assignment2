@@ -50,13 +50,17 @@ import { createUser, getUsers, getUserById, updateUser, deleteUser } from "../se
 
 const router = Router();
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   const { username, email, password } = req.body;
   if (!username || !email || !password)
     return res.status(400).json({ message: "Missing fields" });
 
-  const user = createUser(username, email, password);
-  res.status(201).json({ id: user.id, username, email });
+  try {
+    const user = await createUser(username, email, password);
+    res.status(201).json(user);
+  } catch (err: any) {
+    res.status(400).json({ message: err.message });
+  }
 });
 
 /**

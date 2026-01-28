@@ -1,62 +1,75 @@
-import crypto from "crypto";
+import bcrypt from "bcrypt";
+import usersRepository from "../repositories/usersRepository";
+import { IUser } from "../models/usersModel";
 
-type UserDTO = {
+type SafeUser = {
   id: string;
   username: string;
   email: string;
-  password: string;
-  createdAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 };
 
-const users: UserDTO[] = [];
+const toSafeUser = (u: IUser): SafeUser => ({
+  id: String(u._id),
+  username: u.username,
+  email: u.email,
+  createdAt: (u as any).createdAt,
+  updatedAt: (u as any).updatedAt,
+});
 
-export function createUser(
-  username: string,
-  email: string,
-  password: string
-): UserDTO {
-  const user: UserDTO = {
-    id: crypto.randomUUID(),
+export async function createUser(username: string, email: string, password: string): Promise<SafeUser> {
+  if (!username || !email || !password) throw new Error("Missing fields");
+
+  const existingEmail = await usersRepository.findByEmail(email);
+  if (existingEmail) throw new Error("Email is already in use");
+
+  const existingUsername = await usersRepository.findByUsername(username);
+  if (existingUsername) throw new Error("Username is already taken");
+
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+  const user = await usersRepository.addUser({
     username,
     email,
-    password,
-    createdAt: new Date(),
-  };
-  users.push(user);
-  return user;
+    password: hashedPassword,
+  });
+
+  return toSafeUser(user as any);
 }
 
-export function getUsers(): Omit<UserDTO, "password">[] {
-  return users.map(({ password, ...u }) => u);
+export async function getUsers(): Promise<SafeUser[]> {
+  const users = await usersRepository.getAllUsers();
+  return users.map(toSafeUser);
 }
 
-export function getUserById(id: string): Omit<UserDTO, "password"> | null {
-  const u = users.find((u) => u.id === id);
-  if (!u) return null;
-  const { password, ...safe } = u;
-  return safe;
+export async function getUserById(id: string): Promise<SafeUser | null> {
+  const user = await usersRepository.getUserById(id);
+  return user ? toSafeUser(user) : null;
 }
 
-export function updateUser(
+export async function updateUser(
   id: string,
   data: { username?: string; email?: string; password?: string }
-): Omit<UserDTO, "password"> | null {
-  const u = users.find((u) => u.id === id);
-  if (!u) return null;
+): Promise<SafeUser | null> {
+  const update: Partial<IUser> = {};
 
-  if (data.username) u.username = data.username;
-  if (data.email) u.email = data.email;
-  if (data.password) u.password = data.password;
+  if (data.username) (update as any).username = data.username;
+  if (data.email) (update as any).email = data.email;
 
-  const { password, ...safe } = u;
-  return safe;
+  if (data.password) {
+    const salt = await bcrypt.genSalt(10);
+    (update as any).password = await bcrypt.hash(data.password, salt);
+  }
+
+  const updated = await usersRepository.updateUser(id, update);
+  return updated ? toSafeUser(updated) : null;
 }
 
-export function deleteUser(id: string): boolean {
-  const idx = users.findIndex((u) => u.id === id);
-  if (idx === -1) return false;
-
-  users.splice(idx, 1);
+export async function deleteUser(id: string): Promise<boolean> {
+  const existing = await usersRepository.getUserById(id);
+  if (!existing) return false;
+  await usersRepository.deleteUser(id);
   return true;
 }
-
