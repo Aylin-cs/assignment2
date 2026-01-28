@@ -15,11 +15,11 @@ export const addPost = async (postData: PostData): Promise<IPost> => {
 export const getAllPosts = async (
   filter: Record<string, unknown> = {}
 ): Promise<IPost[]> => {
-  return await Post.find(filter).populate("comments").exec();
+  return await Post.find(filter).exec();
 };
 
 export const getPostById = async (id: string): Promise<IPost | null> => {
-  return await Post.findById(id).populate("comments").exec();
+  return await Post.findById(id).exec();
 };
 
 export const updatePost = async (

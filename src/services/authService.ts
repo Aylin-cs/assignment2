@@ -35,21 +35,23 @@ const user = await usersRepository.addUser({
 return user;
 };
 
-const generateToken = (userId: string): Tokens | null => {
-  if (!process.env.TOKEN_SECRET) return null;
+
+  const generateToken = (userId: string): Tokens | null => {
+  const secret = process.env.TOKEN_SECRET;
+  if (!secret) return null;
 
   const random = Math.random().toString();
 
+  const accessOptions = { expiresIn: (process.env.TOKEN_EXPIRES ?? "15m") } as jwt.SignOptions;
+
+  const refreshOptions = { expiresIn: (process.env.REFRESH_TOKEN_EXPIRES ?? "7d") } as jwt.SignOptions;
+
   const accessToken = jwt.sign(
-    { _id: userId, random },
-    process.env.TOKEN_SECRET,
-    { expiresIn: process.env.TOKEN_EXPIRES }
+    { _id: userId, random }, secret, accessOptions
   );
 
   const refreshToken = jwt.sign(
-    { _id: userId, random },
-    process.env.TOKEN_SECRET,
-    { expiresIn: process.env.REFRESH_TOKEN_EXPIRES }
+    { _id: userId, random }, secret, refreshOptions
   );
 
   return { accessToken, refreshToken };

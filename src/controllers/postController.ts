@@ -15,7 +15,8 @@ export const addPost = async (req: Request, res: Response): Promise<void> => {
 
 export const getAllPosts = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = req.query.userId as string | undefined;
+    const rawUserId = req.params.userId;
+    const userId = Array.isArray(rawUserId) ? rawUserId[0] : rawUserId;
     const posts = await postService.fetchAllPosts(userId);
     res.json(posts);
   } catch (err: any) {
@@ -25,7 +26,8 @@ export const getAllPosts = async (req: Request, res: Response): Promise<void> =>
 
 export const getPostById = async (req: Request, res: Response): Promise<void> => {
   try {
-    const post = await postService.fetchPostById(req.params.post_id);
+    const postId = req.params.post_id as string;
+    const post = await postService.fetchPostById(postId);
     res.json(post);
   } catch (err: any) {
     res.status(404).json({ error: err.message });
@@ -34,10 +36,14 @@ export const getPostById = async (req: Request, res: Response): Promise<void> =>
 
 export const updatePost = async (req: Request, res: Response): Promise<void> => {
   try {
+    console.log("REQ.USER =", (req as any).user);
     const { content } = req.body;
-    const { userId } = req.body;
+    const user = (req as any).user;
+    const userId = user?.userId || user?.id || user?._id;
 
-    const updatedPost = await postService.modifyPost(userId, req.params.post_id, content);
+
+    const postId = req.params.post_id as string;
+    const updatedPost = await postService.modifyPost(userId, postId, content);
     res.json(updatedPost);
   } catch (err: any) {
     res.status(400).json({ error: err.message });
@@ -46,7 +52,7 @@ export const updatePost = async (req: Request, res: Response): Promise<void> => 
 
 export const deletePost = async (req: Request, res: Response): Promise<void> => {
   try {
-    const postId = req.params.post_id;
+    const postId = req.params.post_id as string;;
     const result = await postService.removePost(postId);
 
     if (result) {

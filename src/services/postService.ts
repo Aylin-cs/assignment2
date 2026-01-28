@@ -34,7 +34,12 @@ export const modifyPost = async (userId: string, postId: string, content: string
     throw new Error("Post not found.");
   }
 
-  if (post.userId.toString() !== userId) {
+  const postUserId =
+    typeof (post as any).userId === "object" && (post as any).userId !== null
+      ? String((post as any).userId._id ?? (post as any).userId)
+      : String((post as any).userId);
+
+  if (postUserId !== String(userId)) {
     throw new Error("You are not authorized to modify this post.");
   }
 

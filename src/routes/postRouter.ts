@@ -1,11 +1,14 @@
 import { Router } from "express";
 import * as postController from "../controllers/postController";
+import authService from "../services/authService";
 
 const router = Router();
 /**
  * @openapi
  * /posts:
  *   post:
+ *     security:
+ *       - bearerAuth: []
  *     summary: Create a new post
  *     description: Adds a new post.
  *     requestBody:
@@ -32,7 +35,7 @@ const router = Router();
  *       400:
  *         description: Bad request - validation error
  */
-router.post("/", postController.addPost);
+router.post("/", authService.authMiddleware, postController.addPost);
 
 /**
  * @openapi
@@ -73,6 +76,8 @@ router.get("/:post_id", postController.getPostById);
  * @openapi
  * /posts/{post_id}:
  *   put:
+ *     security:     
+ *      - bearerAuth: []
  *     summary: Update a post
  *     description: Modifies an existing post by its ID.
  *     parameters:
@@ -106,12 +111,14 @@ router.get("/:post_id", postController.getPostById);
  *       404:
  *         description: Post not found
  */
-router.put("/:post_id", postController.updatePost);
+router.put("/:post_id", authService.authMiddleware, postController.updatePost);
 
 /**
  * @openapi
  * /posts/{post_id}:
  *   delete:
+ *     security:
+ *       - bearerAuth: []
  *     summary: Delete a post
  *     description: Removes a post by its ID.
  *     parameters:
@@ -127,6 +134,6 @@ router.put("/:post_id", postController.updatePost);
  *       404:
  *         description: Post not found
  */
-router.delete("/:post_id", postController.deletePost);
+router.delete("/:post_id", authService.authMiddleware, postController.deletePost);
 
 export default router;
