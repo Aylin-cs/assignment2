@@ -116,6 +116,26 @@ router.post(
 
 /**
  * @openapi
+ * /posts/{post_id}/comments:
+ *   get:
+ *     summary: Get comments for a post
+ *     description: Returns all comments for a specific post.
+ *     parameters:
+ *       - in: path
+ *         name: post_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Comments retrieved successfully
+ *       400:
+ *         description: Bad request
+ */
+router.get("/:post_id/comments", postController.getCommentsForPost);
+
+/**
+ * @openapi
  * /posts/{post_id}:
  *   put:
  *     security:     

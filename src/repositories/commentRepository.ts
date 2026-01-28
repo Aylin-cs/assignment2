@@ -9,3 +9,9 @@ export const addComment = async (data: {
   const comment = new Comment(data);
   return await comment.save();
 };
+
+export const getCommentsByPostId = async (
+  postId: string
+): Promise<IComment[]> => {
+  return await Comment.find({ postId }).exec();
+};
