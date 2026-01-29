@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createUser, getUsers, getUserById } from "../services/users_service";
+import { createUser, getUsers, getUserById, updateUser, deleteUser } from "../services/usersService";
 
 /**
  * @openapi
@@ -50,13 +50,17 @@ import { createUser, getUsers, getUserById } from "../services/users_service";
 
 const router = Router();
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   const { username, email, password } = req.body;
   if (!username || !email || !password)
     return res.status(400).json({ message: "Missing fields" });
 
-  const user = createUser(username, email, password);
-  res.status(201).json({ id: user.id, username, email });
+  try {
+    const user = await createUser(username, email, password);
+    res.status(201).json(user);
+  } catch (err: any) {
+    res.status(400).json({ message: err.message });
+  }
 });
 
 /**
@@ -136,6 +140,79 @@ router.get("/:id", (req, res) => {
   const user = getUserById(req.params.id);
   if (!user) return res.status(404).json({ message: "User not found" });
   res.json(user);
+});
+
+/**
+ * @openapi
+ * /users/{id}:
+ *   put:
+ *     summary: Update user by ID
+ *     description: Updates a user's fields.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *       400:
+ *         description: No fields to update
+ *       404:
+ *         description: User not found
+ */
+
+router.put("/:id", (req, res) => {
+  const { username, email, password } = req.body;
+
+  if (!username && !email && !password) {
+    return res.status(400).json({ message: "No fields to update" });
+  }
+
+  const updated = updateUser(req.params.id, { username, email, password });
+  if (!updated) return res.status(404).json({ message: "User not found" });
+
+  res.json(updated);
+});
+
+/**
+ * @openapi
+ * /users/{id}:
+ *   delete:
+ *     summary: Delete user by ID
+ *     description: Deletes a user by ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *       404:
+ *         description: User not found
+ */
+
+router.delete("/:id", (req, res) => {
+  const deleted = deleteUser(req.params.id);
+  if (!deleted) return res.status(404).json({ message: "User not found" });
+
+  res.json({ message: "User deleted successfully" });
 });
 
 export default router;

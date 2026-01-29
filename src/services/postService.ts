@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import * as postRepository from "../repositories/postRepository";
 import { IPost } from "../models/postModel";
+import * as commentRepository from "../repositories/commentRepository";
 
 export const createPost = async (stringUserId: string, content: string): Promise<IPost> => {
   if (!stringUserId || !content) {
@@ -34,7 +35,12 @@ export const modifyPost = async (userId: string, postId: string, content: string
     throw new Error("Post not found.");
   }
 
-  if (post.userId.toString() !== userId) {
+  const postUserId =
+    typeof (post as any).userId === "object" && (post as any).userId !== null
+      ? String((post as any).userId._id ?? (post as any).userId)
+      : String((post as any).userId);
+
+  if (postUserId !== String(userId)) {
     throw new Error("You are not authorized to modify this post.");
   }
 
@@ -47,4 +53,32 @@ export const modifyPost = async (userId: string, postId: string, content: string
 
 export const removePost = async (postId: string): Promise<boolean> => {
   return await postRepository.deletePost(postId);
+};
+
+export const addCommentToPost = async (
+  postId: string,
+  stringUserId: string,
+  content: string
+) => {
+  if (!postId || !stringUserId || !content) {
+    throw new Error("postId, userId and content are required.");
+  }
+
+  const post = await postRepository.getPostById(postId);
+  if (!post) {
+    throw new Error("Post not found.");
+  }
+
+  const userId = new mongoose.Types.ObjectId(stringUserId);
+  const postObjectId = new mongoose.Types.ObjectId(postId);
+
+  const comment = await commentRepository.addComment({
+    postId: postObjectId,
+    userId,
+    content,
+  });
+
+  await postRepository.addCommentToPost(postId, comment._id);
+
+  return comment;
 };
